@@ -1,0 +1,41 @@
+
+
+#pragma mark Sociale features
+
+// twitter
+-(void)presentShareScreen
+{
+    randomReactie = arc4random() % 5;
+    tekst = socialTeksten[randomReactie];
+    
+    NSUserDefaults *defaultScore = [NSUserDefaults standardUserDefaults];
+    NSString *loadScore = [defaultScore objectForKey:@"savedScore"];
+    
+    if ([SLComposeViewController isAvailableForServiceType:SLServiceTypeTwitter])
+    {
+        SLComposeViewController *tweetSheet = [SLComposeViewController
+                                               composeViewControllerForServiceType:SLServiceTypeTwitter];
+        [tweetSheet setInitialText:[NSString stringWithFormat:@"%@ I just scored %@ points in Coloremover!", tekst, loadScore]];
+        [self presentViewController:tweetSheet animated:YES completion:nil];
+        
+    }
+}
+
+
+// FB
+-(void)presentFBScreen
+{
+    randomReactie = arc4random() % 5;
+    tekst = socialTeksten[randomReactie];
+    
+    NSUserDefaults *defaultScore = [NSUserDefaults standardUserDefaults];
+    NSString *loadScore = [defaultScore objectForKey:@"savedScore"];
+    
+    SLComposeViewController *fbSheet = [SLComposeViewController composeViewControllerForServiceType:SLServiceTypeFacebook];
+    
+    [fbSheet setInitialText:[NSString stringWithFormat:@"%@ I just scored %@ points in Coloremover!", tekst, loadScore]];
+    [self presentViewController:fbSheet animated:YES completion:nil];
+        
+    
+}
+
