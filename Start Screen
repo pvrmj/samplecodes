@@ -1,0 +1,42 @@
+// preload geluiden om schokken te voorkomen
+    SKAction *preload = [SKAction playSoundFileNamed:@"switchPage.mp3" waitForCompletion:NO];
+    #pragma unused (preload)
+    
+    
+    // ophalen uit userdefaults
+    NSData *colorData = [[NSUserDefaults standardUserDefaults] objectForKey:@"myColor"];
+    UIColor *color = [NSKeyedUnarchiver unarchiveObjectWithData:colorData];
+    
+    if (colorData == NULL) {
+        self.backgroundColor = [SKColor whiteColor];
+    }
+    
+    else
+        self.backgroundColor = color;
+    
+    
+    //
+    self.scaleMode = SKSceneScaleModeAspectFit;
+    
+    
+    // iPhone of iPad verschillende afmetingen objecten
+    if (UI_USER_INTERFACE_IDIOM() == UIUserInterfaceIdiomPhone) {
+        // grootte fonts
+        fontSize = 24;
+        
+        // Schermfloat afstand
+        schermFloat = 25;
+        
+        // Button font size
+        fontSizeKnoppen = 15;
+    }
+    if (UI_USER_INTERFACE_IDIOM() == UIUserInterfaceIdiomPad) {
+        // grootte fonts
+        fontSize = 44;
+        
+        // Schermfloat afstand
+        schermFloat = 55;
+        
+        // Button font size
+        fontSizeKnoppen = 28;
+    }
