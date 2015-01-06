@@ -1,0 +1,348 @@
+// Game Center
+    [[NSNotificationCenter defaultCenter] postNotificationName:@"reportScoreGameCenter" object:nil];
+    
+}
+
+
+#pragma mark Nodes met teksten en resultaten
+
+// Eigenschappen tekst
+-(SKLabelNode *) welkomNode
+{
+    welkomNode = [SKLabelNode labelNodeWithFontNamed:@"Helvetica Neue Italic"];
+    
+    welkomNode.text = @"Game Over";
+    welkomNode.name = @"welkomNode";
+    welkomNode.fontSize = fontSize  * 1.3;
+    welkomNode.fontColor = [SKColor blackColor];
+    welkomNode.position = CGPointMake(CGRectGetMidX(self.frame), CGRectGetMaxY(self.frame) - (schermFloat * 4));
+    
+    return welkomNode;
+}
+
+
+
+// Eindresultaten
+
+-(SKLabelNode *) scoreNode
+{
+    scoreNode = [SKLabelNode labelNodeWithFontNamed:@"Arial"];
+    
+    NSUserDefaults *defaultScore = [NSUserDefaults standardUserDefaults];
+    loadScore = [defaultScore objectForKey:@"savedScore"];
+    
+    scoreNode.text = [NSString stringWithFormat:@"Points: %@", loadScore];
+    scoreNode.name = @"scoreNode";
+    scoreNode.fontSize = fontSize * 0.75;
+    scoreNode.fontColor = [SKColor blackColor];
+    scoreNode.position = CGPointMake(CGRectGetMinX(self.frame) + (schermFloat) + (scoreNode.frame.size.width / 2), CGRectGetMidY(self.frame));
+    
+    return scoreNode;
+}
+
+
+-(SKLabelNode *) levelNode
+{
+    levelNode = [SKLabelNode labelNodeWithFontNamed:@"Arial"];
+    
+    NSUserDefaults *levelScore = [NSUserDefaults standardUserDefaults];
+    NSString *loadScoreLevel = [levelScore objectForKey:@"savedLevelScore"];
+    
+    levelNode.text = [NSString stringWithFormat:@"Level Reached: %@", loadScoreLevel];
+    levelNode.name = @"levelNode";
+    levelNode.fontSize = fontSize * 0.75;
+    levelNode.fontColor = [SKColor blackColor];
+    levelNode.position = CGPointMake(CGRectGetMinX(self.frame) + (schermFloat) + (levelNode.frame.size.width / 2), CGRectGetMidY(self.frame) - (schermFloat));
+    
+    return levelNode;
+}
+
+
+-(SKLabelNode *) tijdNode
+{
+    tijdNode = [SKLabelNode labelNodeWithFontNamed:@"Arial"];
+    
+    NSUserDefaults *defaultTime = [NSUserDefaults standardUserDefaults];
+    loadTime = [defaultTime objectForKey:@"savedTime"];
+    
+    tijdNode.text = [NSString stringWithFormat:@"Time Played: %@", loadTime];
+    tijdNode.name = @"tijdNode";
+    tijdNode.fontSize = fontSize * 0.75;
+    tijdNode.fontColor = [SKColor blackColor];
+    tijdNode.position = CGPointMake(CGRectGetMinX(self.frame) + (schermFloat) + (tijdNode.frame.size.width / 2), CGRectGetMidY(self.frame) - (schermFloat * 2));
+    
+    return tijdNode;
+}
+
+
+-(SKLabelNode *) shareNode
+{
+    shareNode = [SKLabelNode labelNodeWithFontNamed:@"Arial"];
+    
+    shareNode.text = @"Go Social:";
+    shareNode.name = @"shareNode";
+    shareNode.fontSize = fontSize * 0.75;
+    shareNode.fontColor = [SKColor blackColor];
+    shareNode.position = CGPointMake(CGRectGetMinX(self.frame) + (schermFloat) + (shareNode.frame.size.width / 2), CGRectGetMidY(self.frame) + (schermFloat * 3));
+    
+    return shareNode;
+}
+
+
+-(SKLabelNode *) positieNode
+{
+    positieNode = [SKLabelNode labelNodeWithFontNamed:@"Arial"];
+    
+    positieNode.text = [NSString stringWithFormat:@"Local Position: %i", positie + 1];
+    positieNode.name = @"positionNode";
+    positieNode.fontSize = fontSize * 0.75;
+    positieNode.fontColor = [SKColor blackColor];
+    positieNode.position = CGPointMake(CGRectGetMinX(self.frame) + (schermFloat) + (positieNode.frame.size.width / 2), CGRectGetMidY(self.frame) - (schermFloat * 4));
+    
+    return positieNode;
+}
+
+
+
+
+
+#pragma Mark Array inhoud en aanmaken
+
+// Deze method staat hier zodat alle behaalde scores in array terecht komen, niet alleen de laatste wanneer table view geladen wordt
+-(void) arrayMetScores
+{
+    
+    // Array: laden user defaults (hele array, score en tijd)
+    NSUserDefaults *defaults = [NSUserDefaults standardUserDefaults];
+    arrayVoorScores = [[defaults stringArrayForKey:@"arrayScores"] mutableCopy];
+    
+    NSUserDefaults *defaultScore = [NSUserDefaults standardUserDefaults];
+    loadScore = [defaultScore objectForKey:@"savedScore"];
+    
+    NSUserDefaults *defaultTime = [NSUserDefaults standardUserDefaults];
+    loadTime = [defaultTime objectForKey:@"savedTime"];
+    
+    
+    // datum van vandaag
+    NSDate *today = [NSDate date];
+    NSDateFormatter *dateFormat = [[NSDateFormatter alloc] init];
+    [dateFormat setDateFormat:@"dd/MM/yyyy"];
+    NSString *dateString = [dateFormat stringFromDate:today];    
+    // check alle waarde in array  NSLog(@"%@", arrayVoorScores);
+    
+    
+    
+    
+/* Voorwaarden voor juiste werking array */
+    
+    
+    // Als er nog geen array is, maak deze dan
+    if (!arrayVoorScores) arrayVoorScores = [[NSMutableArray alloc] init];
+    
+    // Zorgt er voor dat er geen lege cellen in de array te zien zijn
+    if ([arrayVoorScores containsObject:@"            "]) {
+        NSLog(@"Er is een lege cell in %lu", (unsigned long)[arrayVoorScores indexOfObject:@"            "]);
+        [arrayVoorScores removeObjectAtIndex:0];
+    }
+    
+    // als er nog geen objecten in array zitten, voeg dan eerste item toe
+    if ([arrayVoorScores count] == 0) {
+        [arrayVoorScores removeLastObject];
+        [arrayVoorScores addObject:[NSString stringWithFormat:@"%@       %@     %@", loadScore, loadTime, dateString]];
+        NSLog(@"Eerste if");
+    }
+    
+    // Check of laatste object niet hetzelfde is als nieuwe, daarna door
+    else if (![arrayVoorScores containsObject:[NSString stringWithFormat:@"%@       %@     %@", loadScore, loadTime, dateString]]) {
+        NSLog(@"Dubbel gevonden!");
+        NSLog(@"Tweede if");
+        
+        // In alle andere gevallen: voeg nieuwe item toe op plaats 0
+        if (loadScore != [arrayVoorScores objectAtIndex:0]) {
+            [arrayVoorScores insertObject:[NSString stringWithFormat:@"%@       %@     %@", loadScore, loadTime, dateString] atIndex:0];
+            NSLog(@"Derde if");
+        }
+        
+    }
+    
+    
+    // save de nieuwe array in userdefaults
+    [defaults setObject:arrayVoorScores forKey:@"arrayScores"];
+    [defaults synchronize];
+    
+    
+    
+  
+    // Gebeurt ook in MyScoresScherm, maar hier zelfde method zonder synchronize voor label position
+    // Items in array sorteren en omdraaien, zodat hoogste score bovenaan staat
+    [arrayVoorScores sortUsingSelector:@selector(localizedStandardCompare:)];
+    NSArray *reversed = [[arrayVoorScores reverseObjectEnumerator] allObjects];
+    
+    NSLog(@"%@", reversed);
+    
+    positie = [reversed indexOfObject:[NSString stringWithFormat:@"%@       %@     %@", loadScore, loadTime, dateString]];
+    
+    NSLog(@"Positie: %i", positie + 1);
+}
+
+
+
+
+
+
+#pragma mark Knoppen
+
+
+-(void) terugKnop
+{
+    // Knop voor terug naar start
+    terugKnop = [UIButton buttonWithType:UIButtonTypeRoundedRect];
+    [terugKnop addTarget:self action:@selector(naarStartScherm) forControlEvents:UIControlEventTouchUpInside];
+    [terugKnop setTitle:@"Home" forState:UIControlStateNormal];
+    terugKnop.clipsToBounds = YES;
+    terugKnop.backgroundColor = [UIColor grayColor];
+    terugKnop.alpha = 0.5;
+    [terugKnop setTintColor:[UIColor whiteColor]];
+    terugKnop.titleLabel.font = [UIFont fontWithName:@"Arial" size:fontSizeKnoppen];
+    
+    terugKnop.frame = CGRectMake(CGRectGetMidX(self.frame) - (schermFloat * 3.75), CGRectGetMidY(self.frame) + (schermFloat * 6), (schermFloat * 2.5), (schermFloat * 2.5));
+    terugKnop.layer.cornerRadius = terugKnop.frame.size.width / 2;
+    
+    [self.view addSubview:terugKnop];
+    
+    terugKnop.alpha = 0;
+    [UIButton animateWithDuration:0.4 delay:0.3 options:0 animations:^{
+        terugKnop.alpha = 0.5;
+    } completion:^(BOOL finished) {
+    }];
+}
+
+-(void) naarStartScherm
+{
+    [self removeAllChildren];
+    
+    terugKnop.hidden = YES;
+    opnieuwKnop.hidden = YES;
+    tweetKnop.hidden = YES;
+    fbKnop.hidden = YES;
+    
+    scoreNode.hidden = YES;
+    tijdNode.hidden = YES;
+    levelNode.hidden = YES;
+    positieNode.hidden = YES;
+    
+    [self runAction:[SKAction playSoundFileNamed:@"switchPage.mp3" waitForCompletion:NO]];
+    
+    SKScene *speelScener = [[StartScherm alloc] initWithSize:self.size];
+    SKTransition *fader = [SKTransition pushWithDirection:SKTransitionDirectionLeft duration:0.2];
+    [self.view presentScene:speelScener transition:fader];
+    
+}
+
+
+-(void) opnieuwKnop
+{
+    // Knop voor terug naar start
+    opnieuwKnop = [UIButton buttonWithType:UIButtonTypeRoundedRect];
+    [opnieuwKnop addTarget:self action:@selector(naarZelfdeSpeelScherm) forControlEvents:UIControlEventTouchUpInside];
+    [opnieuwKnop setTitle:@"Try Again" forState:UIControlStateNormal];
+    opnieuwKnop.clipsToBounds = YES;
+    opnieuwKnop.backgroundColor = [UIColor grayColor];
+    opnieuwKnop.alpha = 0.5;
+    [opnieuwKnop setTintColor:[UIColor whiteColor]];
+    opnieuwKnop.titleLabel.font = [UIFont fontWithName:@"Arial" size:fontSizeKnoppen * 0.9];
+    
+    opnieuwKnop.frame = CGRectMake(CGRectGetMidX(self.frame) + (schermFloat), CGRectGetMidY(self.frame) + (schermFloat * 6), (schermFloat * 2.5), (schermFloat * 2.5));
+    opnieuwKnop.layer.cornerRadius = opnieuwKnop.frame.size.width / 2;
+    
+    [self.view addSubview:opnieuwKnop];
+    
+    opnieuwKnop.alpha = 0;
+    [UIButton animateWithDuration:0.4 delay:0.3 options:0 animations:^{
+        opnieuwKnop.alpha = 0.5;
+    } completion:^(BOOL finished) {
+    }];
+}
+
+-(void) naarZelfdeSpeelScherm
+{
+    [self removeAllChildren];
+    
+    terugKnop.hidden = YES;
+    opnieuwKnop.hidden = YES;
+    tweetKnop.hidden = YES;
+    fbKnop.hidden = YES;
+    
+    [self runAction:[SKAction playSoundFileNamed:@"switchPage.mp3" waitForCompletion:NO]];
+    
+    SKScene *speelScener = [[SpelScherm alloc] initWithSize:self.size];
+    SKTransition *fader = [SKTransition pushWithDirection:SKTransitionDirectionLeft duration:0.2];
+    [self.view presentScene:speelScener transition:fader];
+    
+}
+
+
+
+-(void) tweetKnop
+{
+    // Knop voor terug naar start
+    tweetKnop = [UIButton buttonWithType:UIButtonTypeRoundedRect];
+    [tweetKnop addTarget:self action:@selector(stuurTweet) forControlEvents:UIControlEventTouchUpInside];
+//    [tweetKnop setTitle:@"Twitter" forState:UIControlStateNormal];
+    [tweetKnop setImage:[UIImage imageNamed:@"tweet.png"] forState:UIControlStateNormal];
+    [tweetKnop setImageEdgeInsets:UIEdgeInsetsMake(tweetKnop.frame.size.width + 10, tweetKnop.frame.size.height + 10, 10, 10)];
+    tweetKnop.clipsToBounds = YES;
+    tweetKnop.backgroundColor = [UIColor blueColor];
+    tweetKnop.alpha = 0.5;
+    [tweetKnop setTintColor:[UIColor whiteColor]];
+    tweetKnop.titleLabel.font = [UIFont fontWithName:@"Arial" size:fontSizeKnoppen];
+    
+    tweetKnop.frame = CGRectMake(CGRectGetMidX(self.frame) + (schermFloat * 2), CGRectGetMidY(self.frame) - (schermFloat * 4.5), (schermFloat * 2.5), (schermFloat * 2.5));
+    tweetKnop.layer.cornerRadius = tweetKnop.frame.size.width / 2;
+    
+    [self.view addSubview:tweetKnop];
+    
+    tweetKnop.alpha = 0;
+    [UIButton animateWithDuration:0.4 delay:0.3 options:0 animations:^{
+        tweetKnop.alpha = 0.5;
+    } completion:^(BOOL finished) {
+    }];
+}
+
+-(void) stuurTweet
+{
+    [[NSNotificationCenter defaultCenter] postNotificationName:@"showShareScreen" object:nil];
+
+}
+
+-(void) fbKnop
+{
+    // Knop voor terug naar start
+    fbKnop = [UIButton buttonWithType:UIButtonTypeRoundedRect];
+    [fbKnop addTarget:self action:@selector(stuurFB) forControlEvents:UIControlEventTouchUpInside];
+//    [fbKnop setTitle:@"Facebook" forState:UIControlStateNormal];
+    [fbKnop setImage:[UIImage imageNamed:@"facebook.png"] forState:UIControlStateNormal];
+    fbKnop.clipsToBounds = YES;
+    fbKnop.backgroundColor = [UIColor blueColor];
+    fbKnop.alpha = 0.5;
+    [fbKnop setTintColor:[UIColor whiteColor]];
+    fbKnop.titleLabel.font = [UIFont fontWithName:@"Arial" size:fontSizeKnoppen * 0.8];
+    
+    fbKnop.frame = CGRectMake(CGRectGetMidX(self.frame) - (schermFloat), CGRectGetMidY(self.frame) - (schermFloat * 4.5), (schermFloat * 2.5), (schermFloat * 2.5));
+    fbKnop.layer.cornerRadius = fbKnop.frame.size.width / 2;
+    
+    [self.view addSubview:fbKnop];
+    
+    fbKnop.alpha = 0;
+    [UIButton animateWithDuration:0.4 delay:0.3 options:0 animations:^{
+        fbKnop.alpha = 0.5;
+    } completion:^(BOOL finished) {
+    }];
+}
+
+-(void) stuurFB
+{
+    [[NSNotificationCenter defaultCenter] postNotificationName:@"showFBScreen" object:nil];
+    
+}
+
