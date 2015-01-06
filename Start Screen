@@ -40,3 +40,179 @@
         // Button font size
         fontSizeKnoppen = 28;
     }
+
+
+
+
+-(void) checkLaunch
+{
+    // launchcount: wanneer vaker dan 5 keer op start scherm, tekst "Tap me!" weg
+    NSUserDefaults *defaultsEersteKeer = [NSUserDefaults standardUserDefaults];
+    launchCount = [defaultsEersteKeer integerForKey:@"hasRun"] + 1;
+    [defaultsEersteKeer setInteger:launchCount forKey:@"hasRun"];
+    [defaultsEersteKeer synchronize];
+    
+    NSLog(@"%li", (long)launchCount);
+    
+    if(launchCount <= 5 )
+    {
+        // tekst zichtbaar zolang minder dan 5 keer opgestart
+    }
+    else
+    {
+        // weg bij 5 en vaker
+        lijn.hidden = YES;
+        uitlegNode.hidden = YES;
+    }
+}
+
+-(void) checkLaunchHowTo
+{
+    // launchcount: wanneer vaker dan 5 keer op start scherm, tekst "Tap me!" weg
+    NSUserDefaults *defaultsHowTo = [NSUserDefaults standardUserDefaults];
+    launchCountHowTo = [defaultsHowTo integerForKey:@"hasRunHowTo"] + 1;
+    [defaultsHowTo setInteger:launchCountHowTo forKey:@"hasRunHowTo"];
+    [defaultsHowTo synchronize];
+    
+    NSLog(@"%li", (long)launchCountHowTo);
+    
+    if(launchCountHowTo < 2 )
+    {
+        // eerste keer spelen alleen optie om how to te zien
+        gameModes.enabled = NO;
+        quickPlay.enabled = NO;
+        highScores.enabled = NO;
+
+    }
+    else
+    {
+        // na eerste keer alles omgelijk
+        gameModes.enabled = YES;
+        quickPlay.enabled = YES;
+        highScores.enabled = YES;
+
+    }
+}
+
+
+
+
+
+#pragma mark Acties
+
+-(void)startTijd
+{
+    timer = [NSTimer scheduledTimerWithTimeInterval:3 target:self selector:@selector(randomCircle) userInfo:nil repeats:YES];
+}
+
+-(SKShapeNode *) circleGameModes
+{
+    circleArcade = [[SKShapeNode alloc] init];
+    CGMutablePathRef myPath = CGPathCreateMutable();
+    
+    CGPathAddArc(myPath, NULL, 0,0, (schermFloat * 2), 0, M_PI*2, YES);
+    circleArcade.path = myPath;
+    circleArcade.position = CGPointMake(CGRectGetMidX(self.frame) - (schermFloat * 2.5), CGRectGetMidY(self.frame) + (schermFloat * 2));
+    
+    circleArcade.lineWidth = 0.75;
+    circleArcade.fillColor = [SKColor clearColor];
+    circleArcade.strokeColor = [SKColor blueColor];
+    circleArcade.glowWidth = 0;
+    circleArcade.alpha = 0;
+    
+    SKAction *fader = [SKAction sequence:@[
+                                           [SKAction waitForDuration:1],
+                                           [SKAction fadeAlphaTo:1 duration:0.5]
+                                           ]];
+    [circleArcade runAction:fader];
+
+    
+    return circleArcade;
+}
+
+#pragma mark Touches
+
+
+// Bepaal wat er gebeurt wanneer scherm wordt aangeraakt
+-(void) touchesBegan:(NSSet *)touches withEvent:(UIEvent *)event
+{
+    
+    UITouch *touch = [touches anyObject];
+    CGPoint location = [touch locationInNode:self];
+    SKNode *node = [self nodeAtPoint:location];
+    
+    // als tap op tekst, achtergrondkleur aanpassen
+    if ([node.name isEqualToString:@"welkomNode"]) {
+        
+       if (_achtergrondNodeWit == YES) {
+    
+            self.backgroundColor = [SKColor whiteColor];
+            NSData *colorData = [NSKeyedArchiver archivedDataWithRootObject:[SKColor whiteColor]];
+            [[NSUserDefaults standardUserDefaults] setObject:colorData forKey:@"myColor"];
+           
+           _achtergrondNodeWit = NO;
+        }
+        
+        
+        else if (_achtergrondNodeWit == NO) {
+            
+            self.backgroundColor = [SKColor grayColor];
+            NSData *colorData = [NSKeyedArchiver archivedDataWithRootObject:[SKColor grayColor]];
+            [[NSUserDefaults standardUserDefaults] setObject:colorData forKey:@"myColor"];
+            
+            _achtergrondNodeWit = YES;
+        }
+        
+}
+}
+
+
+
+@end
+
+
+-(void) randomCircle
+{
+    if (launchCountHowTo < 2) {
+        [self circlesHowTo];
+    }
+    
+    else
+    {
+        randomCircle = arc4random() % 4;
+        
+        if (randomCircle == 0) {
+            [self circlesArcade];
+        }
+        if (randomCircle == 1) {
+            [self circlesQuick];
+        }
+        if (randomCircle == 2) {
+            [self circlesHowTo];
+        }
+        if (randomCircle == 3) {
+            [self circlesHighScores];
+        }
+    }
+    
+}
+
+
+-(void) circlesArcade
+{
+    
+    SKAction *fadeInUit = [SKAction group:@[
+                                            [SKAction scaleTo:1.2 duration:0.5],
+                                            [SKAction fadeAlphaTo:0 duration:0.45]
+                                            ]];
+    
+    [circleArcade runAction:fadeInUit completion:^{
+       
+        SKAction *terug = [SKAction sequence:@[
+                                               [SKAction scaleTo:1 duration:0.5],
+                                               [SKAction fadeAlphaTo:1 duration:0.45]
+                                               ]];
+        
+        [circleArcade runAction:terug];
+    }];
+}
